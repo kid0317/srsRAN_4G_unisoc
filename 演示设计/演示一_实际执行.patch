@@ -1,0 +1,37 @@
+diff --git a/lib/include/srsran/config.h b/lib/include/srsran/config.h
+index 531dae379..ca388f187 100644
+--- a/lib/include/srsran/config.h
++++ b/lib/include/srsran/config.h
+@@ -63,6 +63,7 @@
+ #define SRSRAN_ERROR_CANT_START -6
+ #define SRSRAN_ERROR_ALREADY_STARTED -7
+ #define SRSRAN_ERROR_RX_EOF -8
++#define SRSRAN_ERROR_RADIO_RECV_FAIL -9
+ 
+ // cf_t definition
+ typedef _Complex float cf_t;
+diff --git a/srsue/src/phy/sync.cc b/srsue/src/phy/sync.cc
+index c62aa6d5c..7e595aa81 100644
+--- a/srsue/src/phy/sync.cc
++++ b/srsue/src/phy/sync.cc
+@@ -667,7 +667,10 @@ void sync::run_idle_state()
+     Debug("Discarding %d samples", nsamples);
+     srsran_timestamp_t rx_time = {};
+     dummy_buffer.set_nof_samples(nsamples);
+-    if (radio_recv_fnc(dummy_buffer, &rx_time) == SRSRAN_SUCCESS) {
++    int ret = radio_recv_fnc(dummy_buffer, &rx_time);
++    if (ret == SRSRAN_ERROR_RADIO_RECV_FAIL) {
++      Warning("SYNC:  Radio receive failed while in IDLE_RX");
++    } else if (ret >= SRSRAN_SUCCESS) {
+       srsran::console("SYNC:  Receiving from radio while in IDLE_RX\n");
+     }
+     // If radio is in locked state returns immediately. In that case, do a 1 ms sleep
+@@ -978,7 +981,7 @@ int sync::radio_recv_fnc(srsran::rf_buffer_t& data, srsran_timestamp_t* rx_time)
+ 
+   // Receive
+   if (not radio_h->rx_now(data, rf_timestamp)) {
+-    return SRSRAN_ERROR;
++    return SRSRAN_ERROR_RADIO_RECV_FAIL;
+   }
+ 
+   srsran_timestamp_t dummy_flat_ts = {};
