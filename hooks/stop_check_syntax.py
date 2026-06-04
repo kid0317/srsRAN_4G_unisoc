@@ -78,13 +78,11 @@ def main():
         hook_input = {}
 
     if hook_input.get('stop_hook_active', False):
-        print(json.dumps({"decision": "allow"}))
         sys.exit(0)
 
     files = get_modified_files()
     if not files:
         print("No C/C++ files modified, skipping syntax check.", file=sys.stderr)
-        print(json.dumps({"decision": "allow"}))
         sys.exit(0)
 
     errors = []
@@ -102,16 +100,17 @@ def main():
         print(f"Syntax check found {len(errors)} error(s) in {checked} file(s):", file=sys.stderr)
         print(error_detail, file=sys.stderr)
 
+        reason = (
+            f"Syntax errors in {len(errors)} file(s). Please fix them.\n" + error_detail
+        )
         print(json.dumps({
             "decision": "block",
-            "reason": f"Syntax errors in {len(errors)} file(s). Please fix them.",
-            "continue": True,
-            "errors": errors
+            "reason": reason,
+            "continue": True
         }))
         sys.exit(2)
     else:
         print(f"Syntax check passed for {checked} file(s).", file=sys.stderr)
-        print(json.dumps({"decision": "allow"}))
         sys.exit(0)
 
 
