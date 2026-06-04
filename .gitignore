@@ -17,7 +17,6 @@ compile_commands.json
 
 # ===== 本地私有配置（含密钥 / 个人上下文，禁止入库）=====
 .claude/settings.local.json
-CLAUDE.local.md
 
 # ===== 编辑器 / 系统临时文件 =====
 *.swp
