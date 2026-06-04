@@ -44,7 +44,11 @@ def check_syntax(filepath):
         compiler = 'g++'
         std_flag = '-std=c++14'
 
+    # srsRAN includes are repo-root-relative (e.g. #include "srsue/hdr/phy/sync.h"),
+    # so the repo root itself must be on the include path — this mirrors the real
+    # build (see build/compile_commands.json).
     include_paths = [
+        '-I', PROJECT_ROOT,
         '-I', os.path.join(PROJECT_ROOT, 'lib', 'include'),
         '-I', os.path.join(PROJECT_ROOT, 'srsue', 'hdr'),
         '-I', os.path.join(PROJECT_ROOT, 'srsenb', 'hdr'),
@@ -53,6 +57,10 @@ def check_syntax(filepath):
     build_dir = os.path.join(PROJECT_ROOT, 'build')
     if os.path.exists(build_dir):
         include_paths += ['-I', build_dir]
+        # Generated headers (e.g. version/config) live under build/lib/include
+        build_lib_include = os.path.join(build_dir, 'lib', 'include')
+        if os.path.exists(build_lib_include):
+            include_paths += ['-I', build_lib_include]
 
     cmd = [compiler, '-fsyntax-only', std_flag] + include_paths + [full_path]
     try:
