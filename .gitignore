@@ -18,6 +18,10 @@ compile_commands.json
 # ===== 本地私有配置（含密钥 / 个人上下文，禁止入库）=====
 .claude/settings.local.json
 
+# ===== 缓存 / Python 字节码 =====
+.cache/
+hooks/__pycache__/
+
 # ===== 编辑器 / 系统临时文件 =====
 *.swp
 *.swo
