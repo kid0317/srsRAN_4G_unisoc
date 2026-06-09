@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: 审查代码变更的安全性。代码修改后主动使用。
-tools: Read, Grep, Glob
+tools: ["Read", "Grep", "Glob"]
 model: sonnet
 ---
 

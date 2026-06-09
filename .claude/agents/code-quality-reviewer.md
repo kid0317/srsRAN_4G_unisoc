@@ -1,7 +1,7 @@
 ---
 name: code-quality-reviewer
 description: 审查代码质量、命名规范、测试覆盖。
-tools: Read, Grep, Glob
+tools: ["Read", "Grep", "Glob"]
 model: sonnet
 ---
 

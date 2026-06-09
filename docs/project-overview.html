@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>srsRAN_4G 全景视图 / Project Overview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:        #1e1e2e;
+    --bg-soft:   #27293a;
+    --bg-card:   #2a2c3e;
+    --border:    #45475a;
+    --text:      #ffffff;
+    --text-dim:  #a6adc8;
+    --phy:       #f38ba8;  /* PHY  - red    */
+    --mac:       #fab387;  /* MAC  - orange */
+    --rlc:       #f9e2af;  /* RLC  - yellow */
+    --pdcp:      #a6e3a1;  /* PDCP - green  */
+    --rrc:       #89dceb;  /* RRC  - cyan   */
+    --nas:       #cba6f7;  /* NAS  - mauve  */
+    --ue:        #89b4fa;  /* UE   - blue   */
+    --enb:       #a6e3a1;  /* eNB  - green  */
+    --epc:       #f5c2e7;  /* EPC  - pink   */
+    --req:       #a6e3a1;  /* required      */
+    --opt:       #fab387;  /* optional      */
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    line-height: 1.6;
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  header h1 { font-size: 2rem; letter-spacing: 1px; }
+  header h1 .accent { color: var(--phy); }
+  header .sub { color: var(--text-dim); margin-top: 0.5rem; font-size: 0.9rem; }
+  header .meta { color: var(--text-dim); margin-top: 0.75rem; font-size: 0.8rem; }
+  header .meta span { color: var(--rrc); }
+
+  details {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  details[open] { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+  summary {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: background 0.15s;
+  }
+  summary:hover { background: var(--bg-card); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "▶";
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+  }
+  details[open] > summary::before { transform: rotate(90deg); }
+  summary .idx {
+    color: var(--bg);
+    background: var(--rrc);
+    border-radius: 5px;
+    padding: 0 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .panel { padding: 0.5rem 1.25rem 1.5rem; }
+
+  /* ---- project cards ---- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--rrc);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+  }
+  .card .label { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 1.35rem; color: var(--text); margin-top: 0.3rem; font-weight: bold; }
+  .card .note  { color: var(--text-dim); font-size: 0.78rem; margin-top: 0.2rem; }
+  .card.c1 { border-left-color: var(--phy); }
+  .card.c2 { border-left-color: var(--mac); }
+  .card.c3 { border-left-color: var(--rlc); }
+  .card.c4 { border-left-color: var(--pdcp); }
+  .card.c5 { border-left-color: var(--rrc); }
+  .card.c6 { border-left-color: var(--nas); }
+
+  .deps-line { margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem; }
+  .chip {
+    display: inline-block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.15rem 0.7rem;
+    margin: 0.2rem 0.25rem 0.2rem 0;
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+  .chip.req { border-color: var(--req); color: var(--req); }
+  .chip.opt { border-color: var(--opt); color: var(--opt); }
+
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.82rem; }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--rrc); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; position: sticky; top: 0; background: var(--bg-soft); }
+  tr:hover td { background: var(--bg-card); }
+  td code, .panel code {
+    background: var(--bg); color: var(--rlc);
+    padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  td.sig code { white-space: normal; color: #b4f9c0; }
+  .mod-tag { font-weight: bold; padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.72rem; color: var(--bg); }
+  .t-phy  { background: var(--phy); }
+  .t-mac  { background: var(--mac); }
+  .t-rlc  { background: var(--rlc); }
+  .t-pdcp { background: var(--pdcp); }
+  .t-rrc  { background: var(--rrc); }
+  .t-nas  { background: var(--nas); }
+  .t-if   { background: var(--ue); }
+
+  .svg-wrap { overflow-x: auto; margin-top: 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; }
+  svg text { font-family: 'JetBrains Mono', monospace; }
+  .legend { margin-top: 0.7rem; font-size: 0.8rem; color: var(--text-dim); }
+  .legend span { display: inline-block; margin-right: 1rem; }
+  .legend i { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 3px; vertical-align: middle; margin-right: 0.3rem; }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 0.78rem; padding: 1.5rem 0; border-top: 1px solid var(--border); margin-top: 1rem; }
+  footer a { color: var(--rrc); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>srs<span class="accent">RAN</span>_4G &mdash; 项目全景视图</h1>
+  <div class="sub">开源 4G/5G 软件无线电（SDR）协议栈套件 · Panoramic Architecture Overview</div>
+  <div class="meta">生成时间 <span id="gen-time">2026-06-09</span> · 上游 <span>srsran/srsRAN_4G</span> · 语言 <span>C99 / C++14</span></div>
+</header>
+
+<!-- ============ 1. 项目概览 ============ -->
+<details open>
+  <summary><span class="idx">1</span> 项目概览 · Project Overview</summary>
+  <div class="panel">
+    <div class="cards">
+      <div class="card c1"><div class="label">主要语言</div><div class="value">C99 / C++14</div><div class="note">PHY 纯 C，协议栈 C++</div></div>
+      <div class="card c2"><div class="label">代码行数</div><div class="value">~1.02M</div><div class="note">lib + 4 应用 .c/.cc/.h</div></div>
+      <div class="card c3"><div class="label">源文件数</div><div class="value">~1,499</div><div class="note">.c / .cc / .h</div></div>
+      <div class="card c4"><div class="label">系统实体</div><div class="value">4 + 1</div><div class="note">srsUE/srsENB/srsGNB/srsEPC + 公共库</div></div>
+      <div class="card c5"><div class="label">跨层接口</div><div class="value">40</div><div class="note">lib/include/srsran/interfaces/</div></div>
+      <div class="card c6"><div class="label">构建系统</div><div class="value">CMake ≥3.5</div><div class="note">独立 build/，禁 in-tree</div></div>
+    </div>
+
+    <div class="deps-line">
+      <strong>系统实体：</strong>
+      <span class="chip">srsUE — 全栈 SDR 终端</span>
+      <span class="chip">srsENB — eNodeB 基站（S1）</span>
+      <span class="chip">srsGNB — 5G gNodeB（实验性）</span>
+      <span class="chip">srsEPC — 轻量核心网（MME+HSS+S/P-GW+MBMS）</span>
+      <span class="chip">libsrsran_* — 公共库</span>
+    </div>
+
+    <div class="deps-line">
+      <strong>必需依赖：</strong>
+      <span class="chip req">Threads</span>
+      <span class="chip req">FFTW3F / MKL</span>
+      <span class="chip req">mbedTLS</span>
+      <span class="chip req">Boost ≥1.35</span>
+      <span class="chip req">libsctp</span>
+      <span class="chip req">libconfig++</span>
+    </div>
+    <div class="deps-line">
+      <strong>可选依赖：</strong>
+      <span class="chip opt">UHD</span>
+      <span class="chip opt">bladeRF</span>
+      <span class="chip opt">SoapySDR</span>
+      <span class="chip opt">ZeroMQ</span>
+      <span class="chip opt">PCSClite</span>
+      <span class="chip opt">srsGUI</span>
+      <span class="chip opt">Backward-cpp</span>
+    </div>
+
+    <div class="deps-line" style="margin-top:1rem;">
+      <strong>典型部署：</strong> <code>srsepc</code> ←S1→ <code>srsenb</code> ←Uu→ <code>srsue</code>
+      &nbsp;｜&nbsp; 射频：真实 SDR（USRP / BladeRF / Soapy）或 ZeroMQ 虚拟射频（纯软件仿真）
+    </div>
+  </div>
+</details>
+
+<!-- ============ 2. 协议栈分层架构图 ============ -->
+<details open>
+  <summary><span class="idx">2</span> 协议栈分层架构图 · Protocol Stack Layers</summary>
+  <div class="panel">
+    <div class="svg-wrap">
+      <svg viewBox="0 0 1080 560" width="100%" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrL" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#a6adc8"/>
+          </marker>
+        </defs>
+
+        <!-- column headers -->
+        <text x="200" y="34" fill="#89b4fa" font-size="18" font-weight="bold" text-anchor="middle">srsUE（终端）</text>
+        <text x="560" y="34" fill="#a6e3a1" font-size="18" font-weight="bold" text-anchor="middle">srsENB（基站）</text>
+        <text x="900" y="34" fill="#f5c2e7" font-size="18" font-weight="bold" text-anchor="middle">srsEPC（核心网）</text>
+
+        <!-- UE column -->
+        <g font-size="13" text-anchor="middle">
+          <rect x="60" y="55"  width="280" height="46" rx="6" fill="#2a2c3e" stroke="#cba6f7" stroke-width="2"/>
+          <text x="200" y="76"  fill="#cba6f7" font-weight="bold">NAS（控制面）</text>
+          <text x="200" y="93"  fill="#a6adc8" font-size="11">nas.cc / nas_5g.cc · EMM/ESM</text>
+
+          <rect x="60" y="112" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#89dceb" stroke-width="2"/>
+          <text x="200" y="133" fill="#89dceb" font-weight="bold">RRC（控制面）</text>
+          <text x="200" y="150" fill="#a6adc8" font-size="11">rrc.cc · 连接/测量/移动性</text>
+
+          <rect x="60" y="169" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#a6e3a1" stroke-width="2"/>
+          <text x="200" y="190" fill="#a6e3a1" font-weight="bold">PDCP</text>
+          <text x="200" y="207" fill="#a6adc8" font-size="11">pdcp_entity_lte/nr · 加密/完整性</text>
+
+          <rect x="60" y="226" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#f9e2af" stroke-width="2"/>
+          <text x="200" y="247" fill="#f9e2af" font-weight="bold">RLC</text>
+          <text x="200" y="264" fill="#a6adc8" font-size="11">rlc_am/um/tm · 分段/ARQ</text>
+
+          <rect x="60" y="283" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#fab387" stroke-width="2"/>
+          <text x="200" y="304" fill="#fab387" font-weight="bold">MAC</text>
+          <text x="200" y="321" fill="#a6adc8" font-size="11">mac.cc / mux / demux / HARQ</text>
+
+          <rect x="60" y="340" width="280" height="58" rx="6" fill="#2a2c3e" stroke="#f38ba8" stroke-width="2"/>
+          <text x="200" y="362" fill="#f38ba8" font-weight="bold">PHY（纯 C）</text>
+          <text x="200" y="380" fill="#a6adc8" font-size="11">OFDM / PDSCH / PUSCH / 同步 / 信道估计</text>
+
+          <rect x="60" y="409" width="280" height="40" rx="6" fill="#181825" stroke="#45475a" stroke-width="2"/>
+          <text x="200" y="434" fill="#a6adc8" font-weight="bold">Radio（UHD/Soapy/ZMQ）</text>
+        </g>
+
+        <!-- ENB column -->
+        <g font-size="13" text-anchor="middle">
+          <rect x="420" y="112" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#89dceb" stroke-width="2"/>
+          <text x="560" y="133" fill="#89dceb" font-weight="bold">RRC + S1AP</text>
+          <text x="560" y="150" fill="#a6adc8" font-size="11">rrc.cc / s1ap.cc</text>
+
+          <rect x="420" y="169" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#a6e3a1" stroke-width="2"/>
+          <text x="560" y="190" fill="#a6e3a1" font-weight="bold">PDCP</text>
+          <text x="560" y="207" fill="#a6adc8" font-size="11">upper/pdcp.cc</text>
+
+          <rect x="420" y="226" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#f9e2af" stroke-width="2"/>
+          <text x="560" y="247" fill="#f9e2af" font-weight="bold">RLC</text>
+          <text x="560" y="264" fill="#a6adc8" font-size="11">upper/rlc.cc</text>
+
+          <rect x="420" y="283" width="280" height="46" rx="6" fill="#2a2c3e" stroke="#fab387" stroke-width="2"/>
+          <text x="560" y="304" fill="#fab387" font-weight="bold">MAC + 调度器</text>
+          <text x="560" y="321" fill="#a6adc8" font-size="11">mac.cc / sched*.cc (RR/PF)</text>
+
+          <rect x="420" y="340" width="280" height="58" rx="6" fill="#2a2c3e" stroke="#f38ba8" stroke-width="2"/>
+          <text x="560" y="362" fill="#f38ba8" font-weight="bold">PHY（纯 C）</text>
+          <text x="560" y="380" fill="#a6adc8" font-size="11">enb_dl / enb_ul / PDCCH 编码</text>
+
+          <rect x="420" y="409" width="280" height="40" rx="6" fill="#181825" stroke="#45475a" stroke-width="2"/>
+          <text x="560" y="434" fill="#a6adc8" font-weight="bold">Radio（UHD/Soapy/ZMQ）</text>
+        </g>
+
+        <!-- EPC column -->
+        <g font-size="13" text-anchor="middle">
+          <rect x="780" y="112" width="240" height="64" rx="6" fill="#2a2c3e" stroke="#f5c2e7" stroke-width="2"/>
+          <text x="900" y="138" fill="#f5c2e7" font-weight="bold">MME + HSS</text>
+          <text x="900" y="158" fill="#a6adc8" font-size="11">nas.cc / s1ap.cc / hss.cc</text>
+
+          <rect x="780" y="190" width="240" height="64" rx="6" fill="#2a2c3e" stroke="#f5c2e7" stroke-width="2"/>
+          <text x="900" y="216" fill="#f5c2e7" font-weight="bold">S/P-GW</text>
+          <text x="900" y="236" fill="#a6adc8" font-size="11">spgw.cc / gtpc.cc / gtpu.cc</text>
+
+          <rect x="780" y="268" width="240" height="50" rx="6" fill="#2a2c3e" stroke="#f5c2e7" stroke-width="2"/>
+          <text x="900" y="297" fill="#f5c2e7" font-weight="bold">MBMS-GW</text>
+        </g>
+
+        <!-- Uu air interface arrows -->
+        <line x1="340" y1="364" x2="420" y2="364" stroke="#a6adc8" stroke-width="2" marker-end="url(#arrL)" marker-start="url(#arrL)"/>
+        <text x="380" y="356" fill="#f38ba8" font-size="11" text-anchor="middle">Uu</text>
+        <!-- S1 interface -->
+        <line x1="700" y1="135" x2="780" y2="140" stroke="#a6adc8" stroke-width="2" marker-end="url(#arrL)" marker-start="url(#arrL)"/>
+        <text x="740" y="125" fill="#f5c2e7" font-size="11" text-anchor="middle">S1-MME</text>
+        <line x1="700" y1="300" x2="780" y2="240" stroke="#a6adc8" stroke-width="2" marker-end="url(#arrL)"/>
+        <text x="742" y="285" fill="#f5c2e7" font-size="11" text-anchor="middle">S1-U</text>
+
+        <!-- vertical data path note -->
+        <text x="200" y="475" fill="#a6adc8" font-size="12" text-anchor="middle">↑↓ 用户面：IP → PDCP → RLC → MAC → PHY → RF</text>
+        <text x="540" y="510" fill="#6c7086" font-size="12" text-anchor="middle">控制面 NAS/RRC 经 PDCP 透传 · 用户面 IP 数据经 PDCP 加密下行</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:#f38ba8"></i>PHY</span>
+      <span><i style="background:#fab387"></i>MAC</span>
+      <span><i style="background:#f9e2af"></i>RLC</span>
+      <span><i style="background:#a6e3a1"></i>PDCP</span>
+      <span><i style="background:#89dceb"></i>RRC</span>
+      <span><i style="background:#cba6f7"></i>NAS</span>
+      &nbsp;|&nbsp;
+      <span><i style="background:#89b4fa"></i>UE</span>
+      <span><i style="background:#a6e3a1"></i>eNB</span>
+      <span><i style="background:#f5c2e7"></i>EPC</span>
+    </div>
+  </div>
+</details>
+
+<!-- ============ 3. 模块依赖关系图 ============ -->
+<details>
+  <summary><span class="idx">3</span> 模块依赖关系图 · Module Dependencies</summary>
+  <div class="panel">
+    <div class="svg-wrap">
+      <svg viewBox="0 0 1000 460" width="100%" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrD" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+            <path d="M0,0 L9,4 L0,8 Z" fill="#a6adc8"/>
+          </marker>
+        </defs>
+
+        <!-- nodes -->
+        <g text-anchor="middle" font-size="14" font-weight="bold">
+          <rect x="400" y="20"  width="200" height="48" rx="8" fill="#2a2c3e" stroke="#cba6f7" stroke-width="2"/>
+          <text x="500" y="49" fill="#cba6f7">NAS / GW</text>
+
+          <rect x="400" y="100" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#89dceb" stroke-width="2"/>
+          <text x="500" y="129" fill="#89dceb">RRC</text>
+
+          <rect x="400" y="180" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#a6e3a1" stroke-width="2"/>
+          <text x="500" y="209" fill="#a6e3a1">PDCP</text>
+
+          <rect x="400" y="260" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#f9e2af" stroke-width="2"/>
+          <text x="500" y="289" fill="#f9e2af">RLC</text>
+
+          <rect x="400" y="340" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#fab387" stroke-width="2"/>
+          <text x="500" y="369" fill="#fab387">MAC</text>
+
+          <rect x="400" y="420" width="200" height="32" rx="8" fill="#2a2c3e" stroke="#f38ba8" stroke-width="2"/>
+          <text x="500" y="441" fill="#f38ba8">PHY → RF / FFTW</text>
+
+          <!-- side nodes -->
+          <rect x="720" y="100" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#f5c2e7" stroke-width="2"/>
+          <text x="820" y="123" fill="#f5c2e7">S1AP / NGAP</text>
+          <text x="820" y="140" fill="#a6adc8" font-size="10" font-weight="normal">核心网信令</text>
+
+          <rect x="720" y="180" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#89b4fa" stroke-width="2"/>
+          <text x="820" y="203" fill="#89b4fa">GTP-U</text>
+          <text x="820" y="220" fill="#a6adc8" font-size="10" font-weight="normal">用户面隧道</text>
+
+          <rect x="60" y="180" width="200" height="68" rx="8" fill="#2a2c3e" stroke="#a6adc8" stroke-width="2"/>
+          <text x="160" y="205" fill="#a6adc8">interfaces/</text>
+          <text x="160" y="223" fill="#6c7086" font-size="10" font-weight="normal">40 个跨层接口</text>
+          <text x="160" y="238" fill="#6c7086" font-size="10" font-weight="normal">x_interface_y</text>
+
+          <rect x="60" y="340" width="200" height="48" rx="8" fill="#2a2c3e" stroke="#6c7086" stroke-width="2"/>
+          <text x="160" y="363" fill="#a6adc8">common / asn1</text>
+          <text x="160" y="380" fill="#6c7086" font-size="10" font-weight="normal">安全/缓冲/编解码</text>
+        </g>
+
+        <!-- vertical dependency arrows (downward = depends on) -->
+        <g stroke="#a6adc8" stroke-width="2" fill="none">
+          <line x1="500" y1="68"  x2="500" y2="100" marker-end="url(#arrD)"/>
+          <line x1="500" y1="148" x2="500" y2="180" marker-end="url(#arrD)"/>
+          <line x1="500" y1="228" x2="500" y2="260" marker-end="url(#arrD)"/>
+          <line x1="500" y1="308" x2="500" y2="340" marker-end="url(#arrD)"/>
+          <line x1="500" y1="388" x2="500" y2="420" marker-end="url(#arrD)"/>
+          <!-- RRC -> S1AP -->
+          <line x1="600" y1="124" x2="720" y2="124" marker-end="url(#arrD)"/>
+          <!-- PDCP -> GTP-U -->
+          <line x1="600" y1="204" x2="720" y2="204" marker-end="url(#arrD)"/>
+          <!-- interfaces feed RRC/PDCP/RLC -->
+          <line x1="260" y1="200" x2="400" y2="130" stroke-dasharray="4 3" marker-end="url(#arrD)"/>
+          <line x1="260" y1="214" x2="400" y2="284" stroke-dasharray="4 3" marker-end="url(#arrD)"/>
+          <!-- common feeds MAC/PHY -->
+          <line x1="260" y1="360" x2="400" y2="362" stroke-dasharray="4 3" marker-end="url(#arrD)"/>
+        </g>
+
+        <text x="640" y="60" fill="#6c7086" font-size="12">实线箭头：A → B 表示「A 依赖/调用 B」</text>
+        <text x="640" y="78" fill="#6c7086" font-size="12">虚线：通用层被各模块引用</text>
+      </svg>
+    </div>
+    <div class="legend">
+      调用链概要：<code>NAS→RRC→PDCP→RLC→MAC→PHY→RF</code>；RRC 旁路依赖 S1AP/NGAP，PDCP 旁路依赖 GTP-U；
+      <code>interfaces/</code>（40 个 <code>&lt;提供方&gt;_interface_&lt;使用方&gt;</code> 头文件）解耦各层，<code>common/</code> 与 <code>asn1/</code> 被全栈引用。
+    </div>
+  </div>
+</details>
+
+<!-- ============ 4. 外部依赖图 ============ -->
+<details>
+  <summary><span class="idx">4</span> 外部依赖图 · External Dependencies</summary>
+  <div class="panel">
+    <div class="svg-wrap">
+      <svg viewBox="0 0 1000 420" width="100%" preserveAspectRatio="xMidYMid meet">
+        <!-- center node -->
+        <rect x="410" y="180" width="180" height="60" rx="10" fill="#2a2c3e" stroke="#cdd6f4" stroke-width="2.5"/>
+        <text x="500" y="208" fill="#ffffff" font-size="16" font-weight="bold" text-anchor="middle">srsRAN_4G</text>
+        <text x="500" y="227" fill="#a6adc8" font-size="11" text-anchor="middle">CMake ≥ 3.5</text>
+
+        <!-- required ring (left/top) -->
+        <g font-size="12" text-anchor="middle">
+          <g fill="#2a2c3e" stroke="#a6e3a1" stroke-width="2">
+            <rect x="40"  y="30"  width="150" height="40" rx="6"/>
+            <rect x="40"  y="90"  width="150" height="40" rx="6"/>
+            <rect x="40"  y="150" width="150" height="40" rx="6"/>
+            <rect x="40"  y="210" width="150" height="40" rx="6"/>
+            <rect x="40"  y="270" width="150" height="40" rx="6"/>
+            <rect x="40"  y="330" width="150" height="40" rx="6"/>
+          </g>
+          <text x="115" y="55"  fill="#a6e3a1">FFTW3F / MKL</text>
+          <text x="115" y="115" fill="#a6e3a1">mbedTLS</text>
+          <text x="115" y="175" fill="#a6e3a1">Boost ≥1.35</text>
+          <text x="115" y="235" fill="#a6e3a1">libsctp</text>
+          <text x="115" y="295" fill="#a6e3a1">libconfig++</text>
+          <text x="115" y="355" fill="#a6e3a1">pthreads</text>
+        </g>
+
+        <!-- optional ring (right) -->
+        <g font-size="12" text-anchor="middle">
+          <g fill="#2a2c3e" stroke="#fab387" stroke-width="2" stroke-dasharray="5 3">
+            <rect x="810" y="20"  width="150" height="38" rx="6"/>
+            <rect x="810" y="72"  width="150" height="38" rx="6"/>
+            <rect x="810" y="124" width="150" height="38" rx="6"/>
+            <rect x="810" y="176" width="150" height="38" rx="6"/>
+            <rect x="810" y="228" width="150" height="38" rx="6"/>
+            <rect x="810" y="280" width="150" height="38" rx="6"/>
+            <rect x="810" y="332" width="150" height="38" rx="6"/>
+          </g>
+          <text x="885" y="44"  fill="#fab387">UHD (USRP)</text>
+          <text x="885" y="96"  fill="#fab387">bladeRF</text>
+          <text x="885" y="148" fill="#fab387">SoapySDR</text>
+          <text x="885" y="200" fill="#fab387">ZeroMQ</text>
+          <text x="885" y="252" fill="#fab387">PCSClite</text>
+          <text x="885" y="304" fill="#fab387">srsGUI</text>
+          <text x="885" y="356" fill="#fab387">Backward-cpp</text>
+        </g>
+
+        <!-- connectors -->
+        <g stroke="#a6e3a1" stroke-width="1.5" opacity="0.6">
+          <line x1="190" y1="50"  x2="410" y2="195"/>
+          <line x1="190" y1="110" x2="410" y2="200"/>
+          <line x1="190" y1="170" x2="410" y2="205"/>
+          <line x1="190" y1="230" x2="410" y2="215"/>
+          <line x1="190" y1="290" x2="410" y2="222"/>
+          <line x1="190" y1="350" x2="410" y2="230"/>
+        </g>
+        <g stroke="#fab387" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6">
+          <line x1="810" y1="39"  x2="590" y2="195"/>
+          <line x1="810" y1="91"  x2="590" y2="200"/>
+          <line x1="810" y1="143" x2="590" y2="207"/>
+          <line x1="810" y1="195" x2="590" y2="214"/>
+          <line x1="810" y1="247" x2="590" y2="220"/>
+          <line x1="810" y1="299" x2="590" y2="227"/>
+          <line x1="810" y1="351" x2="590" y2="234"/>
+        </g>
+
+        <text x="115" y="395" fill="#a6e3a1" font-size="13" font-weight="bold" text-anchor="middle">── 必选（REQUIRED）</text>
+        <text x="885" y="395" fill="#fab387" font-size="13" font-weight="bold" text-anchor="middle">┄ 可选（ENABLE_* 开关）</text>
+      </svg>
+    </div>
+    <div class="legend">
+      FFT 二选一：默认 <code>FFTW3F</code>，<code>USE_MKL=ON</code> 时用 Intel MKL。
+      射频后端（UHD/bladeRF/SoapySDR）任选；纯软件仿真用 <code>ZeroMQ</code> 虚拟射频。
+      <code>ENABLE_TTCN3=ON</code> 时另需 RapidJSON；<code>BUILD_STATIC=ON</code> 支持全静态链接。
+    </div>
+  </div>
+</details>
+
+<!-- ============ 5. 关键接口清单 ============ -->
+<details>
+  <summary><span class="idx">5</span> 关键接口清单 · Key Public Interfaces</summary>
+  <div class="panel">
+    <table>
+      <thead><tr><th>模块</th><th>函数签名</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mod-tag t-phy">PHY·SYNC</span></td><td class="sig"><code>srsran_sync_find(srsran_sync_t*, const cf_t* in, uint32_t max_off)</code></td><td>PSS/SSS 同步查找，返回峰值位置</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·OFDM</span></td><td class="sig"><code>srsran_ofdm_rx_sf(srsran_ofdm_t*)</code></td><td>OFDM 接收解调一个子帧（FFT）</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·PDSCH</span></td><td class="sig"><code>srsran_pdsch_encode(q, sf, cfg, data, sf_symbols)</code></td><td>下行共享信道编码（eNB 发送数据）</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·PDSCH</span></td><td class="sig"><code>srsran_pdsch_decode(q, sf, cfg, chest, sf_symbols, res)</code></td><td>下行共享信道解码（UE 接收数据）</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·PUSCH</span></td><td class="sig"><code>srsran_pusch_encode(q, sf, cfg, data, sf_symbols)</code></td><td>上行共享信道编码（UE 发送）</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·PBCH</span></td><td class="sig"><code>srsran_pbch_decode(q, chest, syms[], payload, &amp;nof_ports, &amp;sfn_off)</code></td><td>解码 MIB 主信息块 + 端口/SFN</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·PDCCH</span></td><td class="sig"><code>srsran_pdcch_encode(q, sf, dci_msg, sf_symbols)</code></td><td>下行控制信道编码 DCI</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·UE_DL</span></td><td class="sig"><code>srsran_ue_dl_find_dl_dci(q, sf, cfg, rnti, &amp;dci_dl)</code></td><td>盲检 UE 下行 DCI 授权</td></tr>
+        <tr><td><span class="mod-tag t-phy">PHY·CHEST</span></td><td class="sig"><code>srsran_chest_ul_estimate_pusch(q, sf, cfg, in, res)</code></td><td>上行 PUSCH 信道估计</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·MAC←PHY</span></td><td class="sig"><code>mac_interface_phy_lte::rach_detected(tti, cc, preamble_idx, ta)</code></td><td>PHY 上报随机接入前导检测</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·MAC←PHY</span></td><td class="sig"><code>mac_interface_phy_lte::cqi_info(tti, rnti, cc, cqi)</code></td><td>PHY 上报 UE 信道质量指示</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·PHY←RRC</span></td><td class="sig"><code>phy_interface_rrc_lte::cell_search(int earfcn)</code></td><td>RRC 触发 PHY 小区搜索</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·PHY←RRC</span></td><td class="sig"><code>phy_interface_rrc_lte::cell_select(phy_cell_t)</code></td><td>RRC 触发 PHY 小区选择</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·PHY←MAC</span></td><td class="sig"><code>phy_interface_mac_lte::prach_send(idx, sf, power, ta)</code></td><td>MAC 命令 PHY 发送 PRACH</td></tr>
+        <tr><td><span class="mod-tag t-if">IFACE·PHY←MAC</span></td><td class="sig"><code>phy_interface_mac_lte::sr_send()</code></td><td>MAC 命令 PHY 发送调度请求</td></tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<!-- ============ 6. 数据模型概览 ============ -->
+<details>
+  <summary><span class="idx">6</span> 数据模型概览 · Core Data Structures</summary>
+  <div class="panel">
+    <table>
+      <thead><tr><th>类型</th><th>名称</th><th>关键字段 / 取值</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>enum</td><td><code>SRSRAN_ERROR_*</code></td><td>SUCCESS(0) ~ RX_EOF(-8)</td><td>全局统一错误码（<code>config.h</code>），禁改已有编号</td></tr>
+        <tr><td>typedef</td><td><code>cf_t</code></td><td><code>_Complex float</code></td><td>PHY 复数采样基础类型</td></tr>
+        <tr><td>struct</td><td><code>srsran_cell_t</code></td><td>nof_prb, nof_ports, id, cp, frame_type</td><td>小区基本配置，PHY 全栈核心入参</td></tr>
+        <tr><td>struct</td><td><code>srsran_dl_sf_cfg_t</code></td><td>tdd_config, tti, cfi, sf_type</td><td>下行子帧配置（每 TTI）</td></tr>
+        <tr><td>struct</td><td><code>srsran_ul_sf_cfg_t</code></td><td>tdd_config, tti, shortened</td><td>上行子帧配置</td></tr>
+        <tr><td>enum</td><td><code>srsran_cp_t</code></td><td>CP_NORM / CP_EXT</td><td>循环前缀类型</td></tr>
+        <tr><td>enum</td><td><code>srsran_mod_t</code></td><td>BPSK/QPSK/16QAM/64QAM/256QAM</td><td>调制方式</td></tr>
+        <tr><td>enum</td><td><code>srsran_frame_type_t</code></td><td>FDD / TDD</td><td>帧结构类型</td></tr>
+        <tr><td>enum</td><td><code>srsran_dci_format_t</code></td><td>FORMAT0/1/1A/2A/2B…</td><td>下行控制信息格式</td></tr>
+        <tr><td>struct</td><td><code>srsran_pdsch_grant_t</code></td><td>tx_scheme, prb_idx[2][MAX_PRB], tb[], nof_layers</td><td>PDSCH 资源授权</td></tr>
+        <tr><td>struct</td><td><code>srsran_ra_tb_t</code></td><td>mod, tbs, rv, mcs_idx, enabled</td><td>传输块（资源分配单元）</td></tr>
+        <tr><td>struct</td><td><code>srsran_dci_msg_t</code></td><td>payload[DCI_MAX_BITS], location, format, rnti</td><td>承载调度信息的 DCI 消息</td></tr>
+        <tr><td>struct</td><td><code>srsran_ofdm_cfg_t</code></td><td>nof_prb, in/out_buffer, cp, symbol_sz</td><td>OFDM 调制/解调配置</td></tr>
+        <tr><td>struct</td><td><code>dl_sched_t</code> / <code>ul_sched_t</code></td><td>pdsch[]/pusch[], phich[], nof_grants, cfi</td><td>MAC 调度器输出（接口结构）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<footer>
+  srsRAN_4G 全景视图 · 由代码扫描自动生成 · 数据为静态快照，详情以源码为准 ·
+  参见 <a href="../CLAUDE.md">CLAUDE.md</a> / <a href="build-guide.md">build-guide.md</a> / <a href="naming-conventions.md">naming-conventions.md</a>
+</footer>
+
+<script>
+  // 生成时间（页面打开时刷新，无外部依赖）
+  (function () {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    document.getElementById('gen-time').textContent =
+      d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+      ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  })();
+</script>
+
+</body>
+</html>

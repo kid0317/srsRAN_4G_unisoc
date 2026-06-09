@@ -29,3 +29,6 @@ hooks/__pycache__/
 *.bak
 .DS_Store
 Thumbs.db
+
+coverity-mcp-server/__pycache__/
+tests/__pycache__/

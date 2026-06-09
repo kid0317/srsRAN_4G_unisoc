@@ -1,7 +1,7 @@
 ---
 name: architecture-reviewer
 description: 审查代码变更的架构兼容性。
-tools: Read, Grep, Glob
+tools: ["Read", "Grep", "Glob"]
 model: sonnet
 ---
 

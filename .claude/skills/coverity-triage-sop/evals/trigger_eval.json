@@ -1,0 +1,22 @@
+[
+  {"prompt": "帮我分流 Coverity 告警", "should_trigger": true},
+  {"prompt": "BAD_SHIFT 在 modulator.c 是不是误报", "should_trigger": true},
+  {"prompt": "看一下这批 static analysis findings 哪些是 false positive", "should_trigger": true},
+  {"prompt": "UNINIT 告警在 rrc_ue.cc 第245行，帮我分析一下", "should_trigger": true},
+  {"prompt": "Coverity 扫描出来的 DEADCODE 需要处理吗", "should_trigger": true},
+  {"prompt": "NULL_RETURNS checker 报了 scheduler.cc 的空指针解引用", "should_trigger": true},
+  {"prompt": "帮我 triage 这10个 RESOURCE_LEAK findings", "should_trigger": true},
+  {"prompt": "BUFFER_SIZE 在 rrc_nr.cc 报了溢出风险，是真的吗", "should_trigger": true},
+  {"prompt": "USE_AFTER_FREE 告警要怎么判断真假", "should_trigger": true},
+  {"prompt": "Coverity Connect 上有新的扫描结果，帮我看看", "should_trigger": true},
+  {"prompt": "这个 checker pattern 怎么分析，CWE-457", "should_trigger": true},
+  {"prompt": "帮我写 Python 脚本解析 JSON", "should_trigger": false},
+  {"prompt": "srsRAN 怎么编译", "should_trigger": false},
+  {"prompt": "帮我 review 这段 C++ 代码的性能", "should_trigger": false},
+  {"prompt": "LTE 协议栈的 RRC 状态机怎么实现的", "should_trigger": false},
+  {"prompt": "CMakeLists.txt 里加一个新的编译选项", "should_trigger": false},
+  {"prompt": "帮我写单元测试", "should_trigger": false},
+  {"prompt": "git log 最近的提交记录", "should_trigger": false},
+  {"prompt": "Docker 容器里怎么跑 srsENB", "should_trigger": false},
+  {"prompt": "帮我配置 clang-format 规则", "should_trigger": false}
+]
